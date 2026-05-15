@@ -12,6 +12,7 @@ from pygitguardian.models import (
     MCPActivityRequest,
     MCPConfiguration,
     MCPServer,
+    UserInfo,
 )
 
 from ggshield.core.scan import File, Scannable, StringScannable
@@ -315,6 +316,25 @@ class Agent(ABC):
 
         Implementations can assume that the payload is an MCP pre-tool use.
         """
+
+    # History parsing — agents that can find past MCP usage on disk override this.
+
+    def iter_history_events(
+        self, ai_config: Optional[AIDiscovery]
+    ) -> Iterator[MCPActivityRequest]:
+        """Yield historical MCP tool calls this agent can recover from its on-disk state.
+
+        Default: empty (this agent does not know how to surface its history).
+        Implementations decide how to source the events: JSONL transcripts,
+        SQLite databases, etc.
+        """
+        return iter(())
+
+    def _user_or_default(self, ai_config: Optional[AIDiscovery]) -> UserInfo:
+        """Return ``ai_config.user`` or a blank ``UserInfo`` if no config is provided."""
+        if ai_config is not None:
+            return ai_config.user
+        return UserInfo(hostname="", username="", machine_id="")
 
     # Helper methods
 
