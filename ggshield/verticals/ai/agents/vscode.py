@@ -91,6 +91,7 @@ class VSCode(Agent):
             model="",
             cwd=payload.raw.get("cwd", ""),
             input=payload.raw.get("tool_input", {}),
+            timestamp=payload.timestamp,
         )
 
     def _lookup_server_name(
